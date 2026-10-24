@@ -1,0 +1,18 @@
+{
+    "status": "passed",
+    "required_files": [
+        "main.py",
+        "README.md",
+        "requirements.txt",
+        "tests/test_main.py"
+    ],
+    "checked_files": [
+        "main.py",
+        "README.md",
+        "requirements.txt",
+        "tests/test_main.py"
+    ],
+    "missing_files": [],
+    "empty_files": [],
+    "syntax_errors": []
+}

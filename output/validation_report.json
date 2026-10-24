@@ -1,0 +1,35 @@
+{
+  "valid": true,
+  "summary": {
+    "diagrams": 13,
+    "diagram_categories": 11,
+    "requirements": 4,
+    "classes": 4,
+    "components": 4,
+    "workflows": 5,
+    "errors": 0,
+    "warnings": 2,
+    "information": 0
+  },
+  "issues": [
+    {
+      "code": "CLS-002",
+      "severity": "warning",
+      "message": "The method 'update()' is used by 'question' in a workflow but is not declared in its class.",
+      "recommendation": "Review the class definition and confirm the required method."
+    },
+    {
+      "code": "UI-001",
+      "severity": "warning",
+      "message": "An explicit desktop UI implementation was not identified.",
+      "recommendation": "The evaluation requires a desktop application. Document the chosen desktop technology and any changes to the original architecture."
+    }
+  ],
+  "assumptions": [
+    {
+      "topic": "Desktop implementation",
+      "status": "proposed",
+      "description": "A Python desktop interface is a possible implementation approach. This is not a requirement extracted from the diagrams."
+    }
+  ]
+}

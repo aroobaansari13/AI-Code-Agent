@@ -1,0 +1,1436 @@
+{
+  "project": {
+    "name": "Space Fractions",
+    "description": "An educational game designed to help students practice fractions."
+  },
+  "documentation": {
+    "sections": [
+      {
+        "heading": "A. Executive Summary",
+        "level": 1,
+        "content": "The Space Fractions system is a web-based, interactive learning tool designed to improve fraction-solving skills for sixth-grade students. The system consists of an introductory movie, a main menu, a series of fraction questions, and an ending scene with feedback. The architecture will follow a microservices approach, with separate components for the game logic, question management, and user interface. The system will be deployed on a cloud-based infrastructure, ensuring scalability and availability.\n\nChosen architectural style: Microservices\nDeployment topology: Cloud-based infrastructure\n\nTop 3 design risks with concrete mitigations:\n\n| Risk | Mitigation |\n| --- | --- |\n| 1. Scalability issues | Implement load balancing and autoscaling |\n| 2. Security vulnerabilities | Implement encryption and secure authentication |\n| 3. Data loss | Implement regular backups and data replication |\n\nQA coverage mapping:\n\n| ASR/NFR ID | Test Type |\n| --- | --- |\n| ASR-1 (data durability) | Unit testing, Integration testing |\n| NFR-1 (performance) | Load testing, Stress testing |\n| ASR-2 (security) | Penetration testing, Vulnerability scanning |"
+      },
+      {
+        "heading": "B. Traceability & Rationale",
+        "level": 1,
+        "content": "The following table maps the requirements to the corresponding components and artifacts:\n\n| Requirement ID | Short Text | Diagram(s) | Component(s) | Artifact filename(s) | Rationale |\n| --- | --- | --- | --- | --- | --- |\n| FR-1 | Play game | UseCaseDiagram | GameComponent | openapi.yaml | Allows users to play the game |\n| NFR-1 | Performance | SequenceDiagram1 | GameComponent | internal.proto | Ensures the game responds quickly to user input |\n| ASR-1 | Data durability | DeploymentDiagram | QuestionComponent | sql/question_ddl.sql | Ensures that question data is persisted and recoverable |"
+      },
+      {
+        "heading": "C. Architecture Overview",
+        "level": 1,
+        "content": "The Space Fractions system consists of the following components:\n\n* GameComponent: responsible for game logic and user interaction\n* QuestionComponent: responsible for question management and data persistence\n* UserComponent: responsible for user authentication and authorization\n\nThe system follows a microservices architecture, with each component communicating with others through APIs."
+      },
+      {
+        "heading": "D. Detailed Technical Design",
+        "level": 1,
+        "content": ""
+      },
+      {
+        "heading": "GameComponent",
+        "level": 2,
+        "content": ""
+      },
+      {
+        "heading": "Responsibilities & data ownership",
+        "level": 3,
+        "content": "The GameComponent is responsible for game logic and user interaction. It owns the game state data."
+      },
+      {
+        "heading": "Technology options",
+        "level": 3,
+        "content": "* Language/runtime: Node.js 18-20 (Justification: meets ASR-1 (data durability))\n* Web framework: Express.js 4-5 (Justification: meets NFR-1 (performance))\n* RPC/HTTP: RESTful API (Justification: meets ASR-2 (security))\n* Persistence: PostgreSQL 14-15 (Justification: meets ASR-1 (data durability))\n* Cache: Redis 6-7 (Justification: meets NFR-1 (performance))\n* Messaging: RabbitMQ 3-4 (Justification: meets ASR-2 (security))\n* Search: Elasticsearch 7-8 (Justification: meets NFR-1 (performance))\n* Authn/authz: OAuth2 (Justification: meets ASR-2 (security))\n* Observability: Prometheus 2-3 (Justification: meets NFR-1 (performance))\n* CI/CD: Jenkins 2-3 (Justification: meets ASR-1 (data durability))\n* Container runtime: Docker 20-21 (Justification: meets ASR-1 (data durability))\n* Infra provisioning: Terraform 1-2 (Justification: meets ASR-1 (data durability))"
+      },
+      {
+        "heading": "Recommended default stack",
+        "level": 3,
+        "content": "* Node.js 18\n* Express.js 4\n* PostgreSQL 14\n* Redis 6\n* RabbitMQ 3\n* Elasticsearch 7\n* OAuth2\n* Prometheus 2\n* Jenkins 2\n* Docker 20\n* Terraform 1\n\nJustification: Meets ASR-1 (data durability), NFR-1 (performance), and ASR-2 (security)"
+      },
+      {
+        "heading": "Interface design",
+        "level": 3,
+        "content": ""
+      },
+      {
+        "heading": "External APIs",
+        "level": 4,
+        "content": "```yml\nopenapi: 3.0.0\ninfo:\n  title: Space Fractions API\n  description: API for the Space Fractions game\n  version: 1.0.0\npaths:\n  /play:\n    get:\n      summary: Play the game\n      responses:\n        200:\n          description: Game started\n          content:\n            application/json:\n              schema:\n                type: object\n                properties:\n                  gameId:\n                    type: integer\n                    description: Game ID\n```"
+      },
+      {
+        "heading": "Internal contracts",
+        "level": 4,
+        "content": "```proto\nsyntax = \"proto3\";\npackage spacefractions;\nservice GameService {\n  rpc Play(PlayRequest) returns (PlayResponse) {}\n}\nmessage PlayRequest {\n  int32 gameId = 1;\n}\nmessage PlayResponse {\n  int32 gameId = 1;\n}\n```"
+      },
+      {
+        "heading": "Data model / schema",
+        "level": 3,
+        "content": "```sql\nCREATE TABLE games (\n  id SERIAL PRIMARY KEY,\n  game_state JSONB NOT NULL\n);\n```"
+      },
+      {
+        "heading": "Caching & consistency strategy",
+        "level": 3,
+        "content": "* Cache game state in Redis\n* Use PostgreSQL for data persistence\n* Implement data replication for high availability"
+      },
+      {
+        "heading": "E. Operations & Deployment",
+        "level": 1,
+        "content": ""
+      },
+      {
+        "heading": "Kubernetes-ready plan",
+        "level": 2,
+        "content": "```yml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: spacefractions\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: spacefractions\n  template:\n    metadata:\n      labels:\n        app: spacefractions\n    spec:\n      containers:\n      - name: spacefractions\n        image: spacefractions:latest\n        ports:\n        - containerPort: 80\n```"
+      },
+      {
+        "heading": "DB HA topology",
+        "level": 2,
+        "content": "* Use PostgreSQL replication for high availability\n* Implement regular backups and data replication"
+      },
+      {
+        "heading": "F. Security Design",
+        "level": 1,
+        "content": ""
+      },
+      {
+        "heading": "Auth & AuthZ",
+        "level": 2,
+        "content": "* Implement OAuth2 for authentication and authorization\n* Use secure password storage and transmission"
+      },
+      {
+        "heading": "Secrets management & rotation policy",
+        "level": 2,
+        "content": "* Use a secrets manager like Hashicorp's Vault\n* Rotate secrets regularly"
+      },
+      {
+        "heading": "TLS & service-mesh considerations",
+        "level": 2,
+        "content": "* Implement TLS encryption for all communication\n* Use a service mesh like Istio for traffic management and security"
+      },
+      {
+        "heading": "Threat model summary",
+        "level": 2,
+        "content": "* Top 5 threats: unauthorized access, data breaches, denial of service, malware, and phishing\n* Mitigations: implement secure authentication and authorization, use encryption, and monitor for suspicious activity"
+      },
+      {
+        "heading": "G. Observability & SRE",
+        "level": 1,
+        "content": ""
+      },
+      {
+        "heading": "Key per-component & business metrics",
+        "level": 2,
+        "content": "* GameComponent: game start rate, game completion rate, user engagement\n* QuestionComponent: question response rate, question accuracy rate"
+      },
+      {
+        "heading": "SLOs, error budgets, RTO/RPO",
+        "level": 2,
+        "content": "* SLO: 99.99% uptime\n* Error budget: 1%\n* RTO: 1 hour\n* RPO: 1 hour"
+      },
+      {
+        "heading": "Dashboard & runbook sketch",
+        "level": 2,
+        "content": "* Implement a dashboard for monitoring key metrics\n* Create a runbook for common issues and errors"
+      },
+      {
+        "heading": "H. Testing Strategy",
+        "level": 1,
+        "content": ""
+      },
+      {
+        "heading": "Matrix mapping Unit / Integration / Contract / E2E / Chaos tests to components",
+        "level": 2,
+        "content": "| Test Type | GameComponent | QuestionComponent |\n| --- | --- | --- |\n| Unit testing | | |\n| Integration testing | | |\n| Contract testing | | |\n| E2E testing | | |\n| Chaos testing | | |"
+      },
+      {
+        "heading": "Test data management and environment isolation strategy",
+        "level": 2,
+        "content": "* Use a test data management tool like TestRail\n* Implement environment isolation using Docker and Kubernetes"
+      },
+      {
+        "heading": "I. Migration, Data Conversion & Rollout Plan",
+        "level": 1,
+        "content": ""
+      },
+      {
+        "heading": "High-level migration steps",
+        "level": 2,
+        "content": "1. Migrate game data to new database\n2. Update game logic to use new database\n3. Deploy new game component"
+      },
+      {
+        "heading": "Data-sync strategies",
+        "level": 2,
+        "content": "* Use a data sync tool like Apache NiFi\n* Implement data replication for high availability"
+      },
+      {
+        "heading": "Backwards compatibility notes and migration windows for public APIs",
+        "level": 2,
+        "content": "* Implement backwards compatibility for 1 year\n* Use a migration window of 1 month"
+      },
+      {
+        "heading": "J. Tradeoffs & Alternatives",
+        "level": 1,
+        "content": ""
+      },
+      {
+        "heading": "For each major decision",
+        "level": 2,
+        "content": "* Alternative 1: Use a monolithic architecture\n* Alternative 2: Use a serverless architecture\n* Why chosen: Meets ASR-1 (data durability), NFR-1 (performance), and ASR-2 (security)"
+      },
+      {
+        "heading": "K. Open Questions & Assumptions",
+        "level": 1,
+        "content": ""
+      },
+      {
+        "heading": "Assumptions",
+        "level": 2,
+        "content": "A1: The game will be played by 1000 users concurrently\nA2: The game will be played for 1 hour per session"
+      },
+      {
+        "heading": "Unresolved stakeholder questions needing input",
+        "level": 2,
+        "content": "* What is the expected user growth rate?\n* What is the expected game session length?"
+      },
+      {
+        "heading": "L. Deliverables",
+        "level": 1,
+        "content": "```markdown\narchitecture.md\nopenapi.yaml\ninternal.proto\nk8s/spacefractions-deployment.yaml\nsql/game_ddl.sql\ntraceability_matrix.csv\n```\n```yml\nopenapi: 3.0.0\ninfo:\n  title: Space Fractions API\n  description: API for the Space Fractions game\n  version: 1.0.0\npaths:\n  /play:\n    get:\n      summary: Play the game\n      responses:\n        200:\n          description: Game started\n          content:\n            application/json:\n              schema:\n                type: object\n                properties:\n                  gameId:\n                    type: integer\n                    description: Game ID\n```\n```proto\nsyntax = \"proto3\";\npackage spacefractions;\nservice GameService {\n  rpc Play(PlayRequest) returns (PlayResponse) {}\n}\nmessage PlayRequest {\n  int32 gameId = 1;\n}\nmessage PlayResponse {\n  int32 gameId = 1;\n}\n```\n```yml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: spacefractions\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: spacefractions\n  template:\n    metadata:\n      labels:\n        app: spacefractions\n    spec:\n      containers:\n      - name: spacefractions\n        image: spacefractions:latest\n        ports:\n        - containerPort: 80\n```\n```sql\nCREATE TABLE games (\n  id SERIAL PRIMARY KEY,\n  game_state JSONB NOT NULL\n);\n```\n```csv\nRequirement ID,Short Text,Diagram(s),Component(s),Artifact filename(s),Rationale\nFR-1,Play game,UseCaseDiagram,GameComponent,openapi.yaml,Allows users to play the game\nNFR-1,Performance,SequenceDiagram1,GameComponent,internal.proto,Ensures the game responds quickly to user input\nASR-1,Data durability,DeploymentDiagram,QuestionComponent,sql/question_ddl.sql,Ensures that question data is persisted and recoverable\n```"
+      },
+      {
+        "heading": "How to review",
+        "level": 1,
+        "content": "* All FR/NFR/ASR present in traceability matrix?\n* OpenAPI + internal API contract included and valid?\n* Each major component has: responsibilities, stack options (3+), recommended stack + ASR/NFR justification, API contract, and data schema?\n* k8s snippet present and syntactically valid?\n* SQL DDLs provided for persisted entities?\n* Assumptions and open questions clearly listed?"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "ASR-1",
+      "section": "A. Executive Summary",
+      "description": "The Space Fractions system is a web-based, interactive learning tool designed to improve fraction-solving skills for sixth-grade students. The system consists of an introductory movie, a main menu, a series of fraction questions, and an ending scene with feedback. The architecture will follow a microservices approach, with separate components for the game logic, question management, and user interface. The system will be deployed on a cloud-based infrastructure, ensuring scalability and availability.\n\nChosen architectural style: Microservices\nDeployment topology: Cloud-based infrastructure\n\nTop 3 design risks with concrete mitigations:\n\n| Risk | Mitigation |\n| --- | --- |\n| 1. Scalability issues | Implement load balancing and autoscaling |\n| 2. Security vulnerabilities | Implement encryption and secure authentication |\n| 3. Data loss | Implement regular backups and data replication |\n\nQA coverage mapping:\n\n| ASR/NFR ID | Test Type |\n| --- | --- |\n| ASR-1 (data durability) | Unit testing, Integration testing |\n| NFR-1 (performance) | Load testing, Stress testing |\n| ASR-2 (security) | Penetration testing, Vulnerability scanning |"
+    },
+    {
+      "id": "NFR-1",
+      "section": "A. Executive Summary",
+      "description": "The Space Fractions system is a web-based, interactive learning tool designed to improve fraction-solving skills for sixth-grade students. The system consists of an introductory movie, a main menu, a series of fraction questions, and an ending scene with feedback. The architecture will follow a microservices approach, with separate components for the game logic, question management, and user interface. The system will be deployed on a cloud-based infrastructure, ensuring scalability and availability.\n\nChosen architectural style: Microservices\nDeployment topology: Cloud-based infrastructure\n\nTop 3 design risks with concrete mitigations:\n\n| Risk | Mitigation |\n| --- | --- |\n| 1. Scalability issues | Implement load balancing and autoscaling |\n| 2. Security vulnerabilities | Implement encryption and secure authentication |\n| 3. Data loss | Implement regular backups and data replication |\n\nQA coverage mapping:\n\n| ASR/NFR ID | Test Type |\n| --- | --- |\n| ASR-1 (data durability) | Unit testing, Integration testing |\n| NFR-1 (performance) | Load testing, Stress testing |\n| ASR-2 (security) | Penetration testing, Vulnerability scanning |"
+    },
+    {
+      "id": "ASR-2",
+      "section": "A. Executive Summary",
+      "description": "The Space Fractions system is a web-based, interactive learning tool designed to improve fraction-solving skills for sixth-grade students. The system consists of an introductory movie, a main menu, a series of fraction questions, and an ending scene with feedback. The architecture will follow a microservices approach, with separate components for the game logic, question management, and user interface. The system will be deployed on a cloud-based infrastructure, ensuring scalability and availability.\n\nChosen architectural style: Microservices\nDeployment topology: Cloud-based infrastructure\n\nTop 3 design risks with concrete mitigations:\n\n| Risk | Mitigation |\n| --- | --- |\n| 1. Scalability issues | Implement load balancing and autoscaling |\n| 2. Security vulnerabilities | Implement encryption and secure authentication |\n| 3. Data loss | Implement regular backups and data replication |\n\nQA coverage mapping:\n\n| ASR/NFR ID | Test Type |\n| --- | --- |\n| ASR-1 (data durability) | Unit testing, Integration testing |\n| NFR-1 (performance) | Load testing, Stress testing |\n| ASR-2 (security) | Penetration testing, Vulnerability scanning |"
+    },
+    {
+      "id": "FR-1",
+      "section": "B. Traceability & Rationale",
+      "description": "The following table maps the requirements to the corresponding components and artifacts:\n\n| Requirement ID | Short Text | Diagram(s) | Component(s) | Artifact filename(s) | Rationale |\n| --- | --- | --- | --- | --- | --- |\n| FR-1 | Play game | UseCaseDiagram | GameComponent | openapi.yaml | Allows users to play the game |\n| NFR-1 | Performance | SequenceDiagram1 | GameComponent | internal.proto | Ensures the game responds quickly to user input |\n| ASR-1 | Data durability | DeploymentDiagram | QuestionComponent | sql/question_ddl.sql | Ensures that question data is persisted and recoverable |"
+    }
+  ],
+  "actors": [
+    {
+      "type": "actor",
+      "name": "EndUser",
+      "alias": "End User"
+    },
+    {
+      "type": "actor",
+      "name": "Admin",
+      "alias": "Admin"
+    }
+  ],
+  "classes": {
+    "Game": {
+      "attributes": [
+        "- id: string",
+        "- score: int"
+      ],
+      "methods": [
+        "+ play(): void",
+        "+ viewScore(): int"
+      ]
+    },
+    "Question": {
+      "attributes": [
+        "- id: string",
+        "- prompt: string",
+        "- options: List<string>"
+      ],
+      "methods": [
+        "+ getPrompt(): string",
+        "+ getOptions(): List<string>"
+      ]
+    },
+    "User": {
+      "attributes": [
+        "- id: string",
+        "- username: string"
+      ],
+      "methods": [
+        "+ playGame(game: Game): void",
+        "+ viewScore(game: Game): int"
+      ]
+    },
+    "Admin": {
+      "attributes": [
+        "- id: string",
+        "- username: string"
+      ],
+      "methods": [
+        "+ updateQuestions(questions: List<Question>): void"
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "artifact",
+      "name": "GameComponent",
+      "alias": null
+    },
+    {
+      "type": "artifact",
+      "name": "QuestionComponent",
+      "alias": null
+    },
+    {
+      "type": "artifact",
+      "name": "UserComponent",
+      "alias": null
+    },
+    {
+      "type": "artifact",
+      "name": "AdminComponent",
+      "alias": null
+    }
+  ],
+  "workflows": [
+    {
+      "name": "ActivityDiagram",
+      "type": "Activity",
+      "steps": [
+        {
+          "type": "action",
+          "text": "play game"
+        },
+        {
+          "type": "decision",
+          "text": "if (game over?) then (yes)"
+        },
+        {
+          "type": "action",
+          "text": "game over"
+        },
+        {
+          "type": "branch",
+          "text": "else (no)"
+        },
+        {
+          "type": "action",
+          "text": "continue playing"
+        },
+        {
+          "type": "action",
+          "text": "calculate score"
+        },
+        {
+          "type": "action",
+          "text": "display score"
+        }
+      ]
+    },
+    {
+      "name": "SequenceDiagram1",
+      "type": "Sequence",
+      "participants": [
+        {
+          "type": "participant",
+          "name": "User",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Game",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Question",
+          "alias": null
+        }
+      ],
+      "messages": [
+        {
+          "source": "User",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "play()"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "getPrompt()"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "return prompt"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "User",
+          "label": "display prompt"
+        },
+        {
+          "source": "User",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "submit answer"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "check answer"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "return result"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "User",
+          "label": "display result"
+        }
+      ]
+    },
+    {
+      "name": "SequenceDiagram2",
+      "type": "Sequence",
+      "participants": [
+        {
+          "type": "participant",
+          "name": "Admin",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Question",
+          "alias": null
+        }
+      ],
+      "messages": [
+        {
+          "source": "Admin",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "update()"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Admin",
+          "label": "return success"
+        }
+      ]
+    },
+    {
+      "name": "CollaborationDiagram1",
+      "type": "Collaboration",
+      "participants": [
+        {
+          "type": "participant",
+          "name": "User",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Game",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Question",
+          "alias": null
+        }
+      ],
+      "messages": [
+        {
+          "source": "User",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "play()"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "getPrompt()"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "return prompt"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "User",
+          "label": "display prompt"
+        },
+        {
+          "source": "User",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "submit answer"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "check answer"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "return result"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "User",
+          "label": "display result"
+        }
+      ]
+    },
+    {
+      "name": "CollaborationDiagram2",
+      "type": "Collaboration",
+      "participants": [
+        {
+          "type": "participant",
+          "name": "Admin",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Question",
+          "alias": null
+        }
+      ],
+      "messages": [
+        {
+          "source": "Admin",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "update()"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Admin",
+          "label": "return success"
+        }
+      ]
+    }
+  ],
+  "states": [
+    {
+      "name": "StateDiagram",
+      "states": [
+        {
+          "type": "state",
+          "name": "Playing",
+          "alias": null
+        },
+        {
+          "type": "state",
+          "name": "Paused",
+          "alias": null
+        },
+        {
+          "type": "state",
+          "name": "GameOver",
+          "alias": null
+        }
+      ],
+      "transitions": [
+        {
+          "source": "Playing",
+          "relationship": "-->",
+          "target": "Paused",
+          "label": "pause()"
+        },
+        {
+          "source": "Paused",
+          "relationship": "-->",
+          "target": "Playing",
+          "label": "resume()"
+        },
+        {
+          "source": "Playing",
+          "relationship": "-->",
+          "target": "GameOver",
+          "label": "gameOver()"
+        }
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "type": "package",
+      "name": "Game",
+      "alias": null
+    },
+    {
+      "type": "class",
+      "name": "Game",
+      "alias": null
+    },
+    {
+      "type": "class",
+      "name": "Question",
+      "alias": null
+    },
+    {
+      "type": "package",
+      "name": "User",
+      "alias": null
+    },
+    {
+      "type": "class",
+      "name": "User",
+      "alias": null
+    },
+    {
+      "type": "package",
+      "name": "Admin",
+      "alias": null
+    },
+    {
+      "type": "class",
+      "name": "Admin",
+      "alias": null
+    }
+  ],
+  "deployment": [
+    {
+      "name": "DeploymentDiagram",
+      "type": "Deployment",
+      "elements": [
+        {
+          "type": "node",
+          "name": "GameServer",
+          "alias": null
+        },
+        {
+          "type": "node",
+          "name": "QuestionServer",
+          "alias": null
+        },
+        {
+          "type": "node",
+          "name": "UserClient",
+          "alias": null
+        },
+        {
+          "type": "node",
+          "name": "AdminClient",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "GameServer",
+          "relationship": "--",
+          "target": "QuestionServer",
+          "label": ""
+        },
+        {
+          "source": "GameServer",
+          "relationship": "--",
+          "target": "UserClient",
+          "label": ""
+        },
+        {
+          "source": "GameServer",
+          "relationship": "--",
+          "target": "AdminClient",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "ContainerDiagram",
+      "type": "Container",
+      "elements": [
+        {
+          "type": "artifact",
+          "name": "GameContainer",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "QuestionContainer",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "UserContainer",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "AdminContainer",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "GameContainer",
+          "relationship": "--",
+          "target": "QuestionContainer",
+          "label": ""
+        },
+        {
+          "source": "GameContainer",
+          "relationship": "--",
+          "target": "UserContainer",
+          "label": ""
+        },
+        {
+          "source": "GameContainer",
+          "relationship": "--",
+          "target": "AdminContainer",
+          "label": ""
+        }
+      ]
+    }
+  ],
+  "diagrams": [
+    {
+      "id": 1,
+      "name": "UseCaseDiagram",
+      "type": "Use Case",
+      "elements": [
+        {
+          "type": "actor",
+          "name": "EndUser",
+          "alias": "End User"
+        },
+        {
+          "type": "actor",
+          "name": "Admin",
+          "alias": "Admin"
+        },
+        {
+          "type": "usecase",
+          "name": "Play Game",
+          "alias": "(PlayGame)"
+        },
+        {
+          "type": "usecase",
+          "name": "View Score",
+          "alias": "(ViewScore)"
+        },
+        {
+          "type": "usecase",
+          "name": "Update Questions",
+          "alias": "(UpdateQuestions)"
+        },
+        {
+          "type": "usecase",
+          "name": "View Help",
+          "alias": "(ViewHelp)"
+        }
+      ],
+      "relationships": [
+        {
+          "source": "EndUser",
+          "relationship": "--",
+          "target": "PlayGame",
+          "label": ""
+        },
+        {
+          "source": "EndUser",
+          "relationship": "--",
+          "target": "ViewScore",
+          "label": ""
+        },
+        {
+          "source": "EndUser",
+          "relationship": "--",
+          "target": "ViewHelp",
+          "label": ""
+        },
+        {
+          "source": "Admin",
+          "relationship": "--",
+          "target": "UpdateQuestions",
+          "label": ""
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "left to right direction\nactor EndUser as \"End User\"\nactor Admin as \"Admin\"\nrectangle System {\n  usecase \"Play Game\" as (PlayGame)\n  usecase \"View Score\" as (ViewScore)\n  usecase \"Update Questions\" as (UpdateQuestions)\n  usecase \"View Help\" as (ViewHelp)\n}\nEndUser -- (PlayGame)\nEndUser -- (ViewScore)\nEndUser -- (ViewHelp)\nAdmin -- (UpdateQuestions)"
+    },
+    {
+      "id": 2,
+      "name": "ClassDiagram",
+      "type": "Class",
+      "elements": [
+        {
+          "type": "class",
+          "name": "Game",
+          "alias": null
+        },
+        {
+          "type": "class",
+          "name": "Question",
+          "alias": null
+        },
+        {
+          "type": "class",
+          "name": "User",
+          "alias": null
+        },
+        {
+          "type": "class",
+          "name": "Admin",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "Game",
+          "relationship": "--*",
+          "target": "Question",
+          "label": ""
+        },
+        {
+          "source": "User",
+          "relationship": "--*",
+          "target": "Game",
+          "label": ""
+        },
+        {
+          "source": "Admin",
+          "relationship": "--*",
+          "target": "Question",
+          "label": ""
+        }
+      ],
+      "activities": [],
+      "classes": {
+        "Game": {
+          "attributes": [
+            "- id: string",
+            "- score: int"
+          ],
+          "methods": [
+            "+ play(): void",
+            "+ viewScore(): int"
+          ]
+        },
+        "Question": {
+          "attributes": [
+            "- id: string",
+            "- prompt: string",
+            "- options: List<string>"
+          ],
+          "methods": [
+            "+ getPrompt(): string",
+            "+ getOptions(): List<string>"
+          ]
+        },
+        "User": {
+          "attributes": [
+            "- id: string",
+            "- username: string"
+          ],
+          "methods": [
+            "+ playGame(game: Game): void",
+            "+ viewScore(game: Game): int"
+          ]
+        },
+        "Admin": {
+          "attributes": [
+            "- id: string",
+            "- username: string"
+          ],
+          "methods": [
+            "+ updateQuestions(questions: List<Question>): void"
+          ]
+        }
+      },
+      "source": "class Game {\n  - id: string\n  - score: int\n  + play(): void\n  + viewScore(): int\n}\nclass Question {\n  - id: string\n  - prompt: string\n  - options: List<string>\n  + getPrompt(): string\n  + getOptions(): List<string>\n}\nclass User {\n  - id: string\n  - username: string\n  + playGame(game: Game): void\n  + viewScore(game: Game): int\n}\nclass Admin {\n  - id: string\n  - username: string\n  + updateQuestions(questions: List<Question>): void\n}\nGame --* Question\nUser --* Game\nAdmin --* Question"
+    },
+    {
+      "id": 3,
+      "name": "ObjectDiagram",
+      "type": "Object",
+      "elements": [
+        {
+          "type": "participant",
+          "name": "game1",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "question1",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "user1",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "admin1",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "game1",
+          "relationship": "-->",
+          "target": "question1",
+          "label": ""
+        },
+        {
+          "source": "user1",
+          "relationship": "-->",
+          "target": "game1",
+          "label": ""
+        },
+        {
+          "source": "admin1",
+          "relationship": "-->",
+          "target": "question1",
+          "label": ""
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "participant game1\nparticipant question1\nparticipant user1\nparticipant admin1\ngame1 --> question1\nuser1 --> game1\nadmin1 --> question1"
+    },
+    {
+      "id": 4,
+      "name": "StateDiagram",
+      "type": "State",
+      "elements": [
+        {
+          "type": "state",
+          "name": "Playing",
+          "alias": null
+        },
+        {
+          "type": "state",
+          "name": "Paused",
+          "alias": null
+        },
+        {
+          "type": "state",
+          "name": "GameOver",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "Playing",
+          "relationship": "-->",
+          "target": "Paused",
+          "label": "pause()"
+        },
+        {
+          "source": "Paused",
+          "relationship": "-->",
+          "target": "Playing",
+          "label": "resume()"
+        },
+        {
+          "source": "Playing",
+          "relationship": "-->",
+          "target": "GameOver",
+          "label": "gameOver()"
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "state Playing\nstate Paused\nstate GameOver\n[*] --> Playing\nPlaying --> Paused : pause()\nPaused --> Playing : resume()\nPlaying --> GameOver : gameOver()"
+    },
+    {
+      "id": 5,
+      "name": "ActivityDiagram",
+      "type": "Activity",
+      "elements": [],
+      "relationships": [],
+      "activities": [
+        {
+          "type": "action",
+          "text": "play game"
+        },
+        {
+          "type": "decision",
+          "text": "if (game over?) then (yes)"
+        },
+        {
+          "type": "action",
+          "text": "game over"
+        },
+        {
+          "type": "branch",
+          "text": "else (no)"
+        },
+        {
+          "type": "action",
+          "text": "continue playing"
+        },
+        {
+          "type": "action",
+          "text": "calculate score"
+        },
+        {
+          "type": "action",
+          "text": "display score"
+        }
+      ],
+      "classes": {},
+      "source": "start\n:play game;\nif (game over?) then (yes)\n  :game over;\nelse (no)\n  :continue playing;\nendif\n:calculate score;\n:display score;\nstop"
+    },
+    {
+      "id": 6,
+      "name": "SequenceDiagram1",
+      "type": "Sequence",
+      "elements": [
+        {
+          "type": "participant",
+          "name": "User",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Game",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Question",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "User",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "play()"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "getPrompt()"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "return prompt"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "User",
+          "label": "display prompt"
+        },
+        {
+          "source": "User",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "submit answer"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "check answer"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "return result"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "User",
+          "label": "display result"
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "participant User\nparticipant Game\nparticipant Question\nUser->>Game: play()\nGame->>Question: getPrompt()\nQuestion->>Game: return prompt\nGame->>User: display prompt\nUser->>Game: submit answer\nGame->>Question: check answer\nQuestion->>Game: return result\nGame->>User: display result"
+    },
+    {
+      "id": 7,
+      "name": "SequenceDiagram2",
+      "type": "Sequence",
+      "elements": [
+        {
+          "type": "participant",
+          "name": "Admin",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Question",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "Admin",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "update()"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Admin",
+          "label": "return success"
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "participant Admin\nparticipant Question\nAdmin->>Question: update()\nQuestion->>Admin: return success"
+    },
+    {
+      "id": 8,
+      "name": "CollaborationDiagram1",
+      "type": "Collaboration",
+      "elements": [
+        {
+          "type": "participant",
+          "name": "User",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Game",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Question",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "User",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "play()"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "getPrompt()"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "return prompt"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "User",
+          "label": "display prompt"
+        },
+        {
+          "source": "User",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "submit answer"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "check answer"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Game",
+          "label": "return result"
+        },
+        {
+          "source": "Game",
+          "relationship": "->>",
+          "target": "User",
+          "label": "display result"
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "participant User\nparticipant Game\nparticipant Question\nUser->>Game: play()\nGame->>Question: getPrompt()\nQuestion->>Game: return prompt\nGame->>User: display prompt\nUser->>Game: submit answer\nGame->>Question: check answer\nQuestion->>Game: return result\nGame->>User: display result\nnote right of Game: Scenario: Play Game"
+    },
+    {
+      "id": 9,
+      "name": "CollaborationDiagram2",
+      "type": "Collaboration",
+      "elements": [
+        {
+          "type": "participant",
+          "name": "Admin",
+          "alias": null
+        },
+        {
+          "type": "participant",
+          "name": "Question",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "Admin",
+          "relationship": "->>",
+          "target": "Question",
+          "label": "update()"
+        },
+        {
+          "source": "Question",
+          "relationship": "->>",
+          "target": "Admin",
+          "label": "return success"
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "participant Admin\nparticipant Question\nAdmin->>Question: update()\nQuestion->>Admin: return success\nnote right of Question: Scenario: Update Questions"
+    },
+    {
+      "id": 10,
+      "name": "PackageDiagram",
+      "type": "Package",
+      "elements": [
+        {
+          "type": "package",
+          "name": "Game",
+          "alias": null
+        },
+        {
+          "type": "class",
+          "name": "Game",
+          "alias": null
+        },
+        {
+          "type": "class",
+          "name": "Question",
+          "alias": null
+        },
+        {
+          "type": "package",
+          "name": "User",
+          "alias": null
+        },
+        {
+          "type": "class",
+          "name": "User",
+          "alias": null
+        },
+        {
+          "type": "package",
+          "name": "Admin",
+          "alias": null
+        },
+        {
+          "type": "class",
+          "name": "Admin",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "Game",
+          "relationship": "--",
+          "target": "User",
+          "label": ""
+        },
+        {
+          "source": "Game",
+          "relationship": "--",
+          "target": "Admin",
+          "label": ""
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "package Game {\n  class Game\n  class Question\n}\npackage User {\n  class User\n}\npackage Admin {\n  class Admin\n}\nGame -- User\nGame -- Admin"
+    },
+    {
+      "id": 11,
+      "name": "ComponentDiagram",
+      "type": "Component",
+      "elements": [
+        {
+          "type": "artifact",
+          "name": "GameComponent",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "QuestionComponent",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "UserComponent",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "AdminComponent",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "GameComponent",
+          "relationship": "--",
+          "target": "QuestionComponent",
+          "label": ""
+        },
+        {
+          "source": "GameComponent",
+          "relationship": "--",
+          "target": "UserComponent",
+          "label": ""
+        },
+        {
+          "source": "GameComponent",
+          "relationship": "--",
+          "target": "AdminComponent",
+          "label": ""
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "artifact GameComponent\nartifact QuestionComponent\nartifact UserComponent\nartifact AdminComponent\nGameComponent -- QuestionComponent\nGameComponent -- UserComponent\nGameComponent -- AdminComponent"
+    },
+    {
+      "id": 12,
+      "name": "DeploymentDiagram",
+      "type": "Deployment",
+      "elements": [
+        {
+          "type": "node",
+          "name": "GameServer",
+          "alias": null
+        },
+        {
+          "type": "node",
+          "name": "QuestionServer",
+          "alias": null
+        },
+        {
+          "type": "node",
+          "name": "UserClient",
+          "alias": null
+        },
+        {
+          "type": "node",
+          "name": "AdminClient",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "GameServer",
+          "relationship": "--",
+          "target": "QuestionServer",
+          "label": ""
+        },
+        {
+          "source": "GameServer",
+          "relationship": "--",
+          "target": "UserClient",
+          "label": ""
+        },
+        {
+          "source": "GameServer",
+          "relationship": "--",
+          "target": "AdminClient",
+          "label": ""
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "node GameServer\nnode QuestionServer\nnode UserClient\nnode AdminClient\nGameServer -- QuestionServer\nGameServer -- UserClient\nGameServer -- AdminClient"
+    },
+    {
+      "id": 13,
+      "name": "ContainerDiagram",
+      "type": "Container",
+      "elements": [
+        {
+          "type": "artifact",
+          "name": "GameContainer",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "QuestionContainer",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "UserContainer",
+          "alias": null
+        },
+        {
+          "type": "artifact",
+          "name": "AdminContainer",
+          "alias": null
+        }
+      ],
+      "relationships": [
+        {
+          "source": "GameContainer",
+          "relationship": "--",
+          "target": "QuestionContainer",
+          "label": ""
+        },
+        {
+          "source": "GameContainer",
+          "relationship": "--",
+          "target": "UserContainer",
+          "label": ""
+        },
+        {
+          "source": "GameContainer",
+          "relationship": "--",
+          "target": "AdminContainer",
+          "label": ""
+        }
+      ],
+      "activities": [],
+      "classes": {},
+      "source": "artifact GameContainer\nartifact QuestionContainer\nartifact UserContainer\nartifact AdminContainer\nGameContainer -- QuestionContainer\nGameContainer -- UserContainer\nGameContainer -- AdminContainer"
+    }
+  ],
+  "assumptions": [],
+  "architecture_gaps": []
+}
